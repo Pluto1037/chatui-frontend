@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "author": "zzl <1184047606@qq.com>",
+  "scripts": {
+    "dev": "cross-env REACT_APP_ENV=develop UMI_ENV=develop umi dev",
+    "build:dev": "cross-env REACT_APP_ENV=develop UMI_ENV=develop umi build",
+    "build:prod": "cross-env REACT_APP_ENV=release UMI_ENV=release umi build",
+    "postinstall": "umi setup",
+    "setup": "umi setup",
+    "start": "npm run dev"
+  },
+  "dependencies": {
+    "@ant-design/pro-components": "^2.6.18",
+    "@chatui/core": "^2.4.2",
+    "antd": "^5.8.6",
+    "axios": "^1.5.0",
+    "dva": "^2.4.1",
+    "umi": "^4.0.88"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.33",
+    "@types/react-dom": "^18.0.11",
+    "@umijs/plugins": "^4.0.80",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.0.3"
+  }
+}
