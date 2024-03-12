@@ -3,7 +3,7 @@ import {
   FetchMessage,
   CreateChat,
   UpdateMessage,
-} from "@/services/chat";
+} from "@/services/prochat";
 import { AnyAction, Effect, EffectsCommandMap, Reducer } from "umi";
 
 export interface ChatType {
@@ -68,10 +68,7 @@ const Model: ModelType = {
         },
       });
       const dialogueId = yield select((state: any) => state.chat.curChat);
-      const data = yield call(UpdateMessage, {
-        dialogueId,
-        payload,
-      });
+      const data = yield call(UpdateMessage, { dialogueId, payload });
       if (data) {
         yield put({
           type: "save",
@@ -98,11 +95,10 @@ const Model: ModelType = {
             historyLoading: false,
           },
         });
-        if (data.dialoguesCount)
-          yield put({
-            type: "fetchMessage",
-            payload: data.dialogues[0]?.dialogueId,
-          });
+        yield put({
+          type: "fetchMessage",
+          payload: data.dialogues[0]?.dialogueId,
+        });
       }
     },
     *deleteHistory({ payload }, { call, put }): any {
@@ -120,15 +116,13 @@ const Model: ModelType = {
       // }
     },
 
-    *createChat({ payload }, { call, put, select }): any {
-      const history = yield select((state: any) => state.chat.history);
+    *createChat({ payload }, { call, put }): any {
       const data = yield call(CreateChat, { dialogue: { ...payload } });
       if (data) {
         yield put({
           type: "save",
           payload: {
-            curChat: data.dialogue.dialogueId,
-            history: history.concat(data.dialogue),
+            curChat: data.something,
           },
         });
       }

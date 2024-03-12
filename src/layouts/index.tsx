@@ -21,7 +21,10 @@ export default function Layout() {
       title="智能问答机器人"
       breakpoint={false}
       defaultCollapsed
-      contentStyle={{ marginLeft: 12, padding: 0 }}
+      contentStyle={{
+        margin: 0,
+        padding: 0,
+      }}
       menuItemRender={(menuItemProps, defaultDom) => {
         if (menuItemProps.isUrl || menuItemProps.children) {
           return defaultDom;

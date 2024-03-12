@@ -5,17 +5,19 @@ import { connect } from "dva";
 import { LoginType } from "@/models/login";
 import { accountRegister } from "@/services/login";
 import type { Dispatch } from "umi";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const { Content } = Layout;
 
 interface LoginProps {
   dispatch: Dispatch;
   data?: any;
+  isWrong?: boolean;
+  wrongMsg?: any;
 }
 
 const Login: React.FC<LoginProps> = (props) => {
-  const { data, dispatch } = props;
+  const { data, isWrong, wrongMsg, dispatch } = props;
   const [messageApi, contextHolder] = message.useMessage();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
@@ -39,9 +41,17 @@ const Login: React.FC<LoginProps> = (props) => {
     });
   };
 
+  useEffect(() => {
+    if (isWrong) {
+      // messageApi.error(wrongMsg);
+      messageApi.error("账户名或密码错误！");
+    }
+  }, [isWrong]);
+
   const onRegister = async (values: any) => {
     const res = await accountRegister(values);
     if (res.status === 200) {
+      setIsModalOpen(false);
       messageApi.success("注册成功");
       form.resetFields();
     } else {
@@ -73,7 +83,7 @@ const Login: React.FC<LoginProps> = (props) => {
           <Form.Item
             label="账号"
             name="username"
-            rules={[{ required: true, message: "Please input your username!" }]}
+            rules={[{ required: true, message: "请输入账号！" }]}
           >
             <Input />
           </Form.Item>
@@ -81,7 +91,7 @@ const Login: React.FC<LoginProps> = (props) => {
           <Form.Item
             label="密码"
             name="password"
-            rules={[{ required: true, message: "Please input your password!" }]}
+            rules={[{ required: true, message: "请输入密码！" }]}
           >
             <Input.Password />
           </Form.Item>
@@ -89,14 +99,14 @@ const Login: React.FC<LoginProps> = (props) => {
           <Form.Item
             label="邮箱"
             name="email"
-            rules={[{ required: true, message: "Please input your email!" }]}
+            rules={[{ required: true, message: "请输入邮箱！" }]}
           >
             <Input />
           </Form.Item>
 
-          <Form.Item label="兑换码" name="vipCode">
+          {/* <Form.Item label="兑换码" name="vipCode">
             <Input placeholder="可选填" />
-          </Form.Item>
+          </Form.Item> */}
 
           <Form.Item wrapperCol={{ offset: 10, span: 16 }}>
             <Button type="primary" htmlType="submit">
@@ -169,6 +179,8 @@ const Login: React.FC<LoginProps> = (props) => {
 const mapStateToProps = ({ login }: { login: LoginType }) => {
   return {
     data: login.data,
+    isWrong: login.isWrong,
+    wrongMsg: login.wrongMsg,
   };
 };
 

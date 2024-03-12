@@ -22,6 +22,7 @@ export async function accountLogin(data: any) {
     })
     .catch(function (error) {
       console.log(error);
+      return error;
     });
 }
 

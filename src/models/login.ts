@@ -1,9 +1,13 @@
 import { stringify } from "querystring";
 import { history, Effect, Reducer } from "umi";
 import { accountLogin, getPageQuery } from "@/services/login";
+import { fetchUserInfo } from "@/services/manager";
+import storeUtil from "@/utils/store";
 
 export interface LoginType {
   data?: any;
+  isWrong?: boolean;
+  wrongMsg?: any;
 }
 
 export interface ModelType {
@@ -11,6 +15,7 @@ export interface ModelType {
   effects: {
     login: Effect;
     logout: Effect;
+    refreshInfo: Effect;
   };
   reducers: {
     changeLoginStatus: Reducer<LoginType>;
@@ -21,6 +26,8 @@ export interface ModelType {
 const Model: ModelType = {
   state: {
     data: undefined,
+    isWrong: false,
+    wrongMsg: undefined,
   },
 
   effects: {
@@ -39,6 +46,7 @@ const Model: ModelType = {
           type: "save",
           payload: {
             data: response.data.user,
+            isWrong: false,
           },
         });
 
@@ -64,11 +72,36 @@ const Model: ModelType = {
         // }
         // redir = redir === "login" || redir === "/user" ? "/" : redir;
         // history.replace(redir || "/");
+      } else {
+        yield put({
+          type: "save",
+          payload: {
+            isWrong: true,
+            wrongMsg: response.response.data,
+          },
+        });
+      }
+    },
+    *refreshInfo({ payload }, { call, put }): any {
+      const response = yield call(fetchUserInfo, payload);
+      console.log(response);
+
+      if (response.status === 200) {
+        // 更新用户信息
+        yield put({
+          type: "save",
+          payload: {
+            data: response.data.user,
+            isWrong: false,
+          },
+        });
       }
     },
 
     logout() {
-      localStorage.removeItem("chatend_token");
+      storeUtil.remove("token");
+      storeUtil.remove("level");
+      //localStorage.removeItem("token");
       // 不是login界面的话跳转到login界面
       if (window.location.pathname !== "/login") {
         history.replace({
@@ -84,7 +117,18 @@ const Model: ModelType = {
   reducers: {
     // effect获取数据处理方法
     changeLoginStatus(state, { payload }) {
-      localStorage.setItem("chatend_token", payload.data.user.token);
+      //localStorage.setItem("token", payload.data.user.token);
+      storeUtil.set(
+        "token",
+        payload.data.user.token,
+        Date.now() + 1000 * 60 * 60 * 5
+      );
+      // 利用localstorage记录用户等级，和token同样过期时间
+      storeUtil.set(
+        "level",
+        payload.data.user.userlevel,
+        Date.now() + 1000 * 60 * 60 * 5
+      );
       return { ...state };
     },
     save(state, { payload }) {
